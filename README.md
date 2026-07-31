@@ -76,6 +76,21 @@ docker compose down -v
 docker compose up -d
 ```
 
+### Backup de la base de datos (dump)
+
+`backend/db/dumps/biblioteca.dump` es un backup completo de la base de datos
+(esquema + datos de prueba + historial de Flyway) que el evaluador puede
+restaurar en su propio entorno:
+
+```bash
+# Desde la raíz del repositorio, con el contenedor de MySQL corriendo
+docker exec -i biblioteca-mysql mysql -u root -p < backend/db/dumps/biblioteca.dump
+```
+
+El archivo incluye la tabla `flyway_schema_history`, por lo que restaurarlo en
+una base de datos vacía deja la aplicación funcionando sin que Flyway intente
+re-aplicar las migraciones.
+
 ## Compilar y ejecutar (local)
 
 ```bash
