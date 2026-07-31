@@ -39,6 +39,11 @@ public class EjemplarController {
         return ResponseEntity.ok(ejemplarService.listarPorLibro(libroId));
     }
 
+    @GetMapping("/disponibles/{isbn}")
+    public ResponseEntity<List<EjemplarResponse>> listarDisponibles(@PathVariable String isbn) {
+        return ResponseEntity.ok(ejemplarService.listarDisponiblesPorIsbn(isbn));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<EjemplarResponse> obtener(@PathVariable Long id) {
         return ResponseEntity.ok(ejemplarService.obtenerPorId(id));

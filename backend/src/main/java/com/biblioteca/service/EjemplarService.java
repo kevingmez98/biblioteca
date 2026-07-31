@@ -24,8 +24,12 @@ public class EjemplarService {
         var libro = libroRepository.findById(request.libroId())
                 .orElseThrow(() -> new EntityNotFoundException("Libro", request.libroId()));
 
+        // Tener cuidado para producción (Por temas de concurrrencia mas que todo)
+        var count = ejemplarRepository.findByLibroId(libro.getId()).size();
+        var codigo = "%s-%03d".formatted(libro.getIsbn(), count + 1);
+
         var ejemplar = Ejemplar.builder()
-                .codigo(request.codigo())
+                .codigo(codigo)
                 .estado(EstadoEjemplar.DISPONIBLE)
                 .libro(libro)
                 .build();
@@ -45,6 +49,14 @@ public class EjemplarService {
     @Transactional(readOnly = true)
     public List<EjemplarResponse> listarPorLibro(Long libroId) {
         return ejemplarRepository.findByLibroId(libroId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<EjemplarResponse> listarDisponiblesPorIsbn(String isbn) {
+        return ejemplarRepository.findByLibro_IsbnAndEstado(isbn, EstadoEjemplar.DISPONIBLE)
                 .stream()
                 .map(this::toResponse)
                 .toList();

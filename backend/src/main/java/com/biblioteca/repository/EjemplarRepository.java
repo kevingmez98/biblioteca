@@ -13,4 +13,6 @@ public interface EjemplarRepository extends JpaRepository<Ejemplar, Long> {
     List<Ejemplar> findByLibroIdAndEstado(Long libroId, EstadoEjemplar estado);
 
     Optional<Ejemplar> findByCodigo(String codigo);
+
+    List<Ejemplar> findByLibro_IsbnAndEstado(String isbn, EstadoEjemplar estado);
 }

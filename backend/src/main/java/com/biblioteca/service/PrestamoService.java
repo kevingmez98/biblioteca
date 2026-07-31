@@ -29,10 +29,14 @@ public class PrestamoService {
         var usuario = usuarioRepository.findById(request.usuarioId())
                 .orElseThrow(() -> new EntityNotFoundException("Usuario", request.usuarioId()));
 
+        // Si ya hay un prestamo activo para el usuario se lanza un errror
+        if (!prestamoRepository.findByUsuarioIdAndEstadoPrestamo(request.usuarioId(), EstadoPrestamo.ACTIVO).isEmpty()) {
+            throw new IllegalStateException("El usuario ya tiene un prestamo activo");
+        }
+
         var ejemplar = ejemplarRepository.findById(request.ejemplarId())
                 .orElseThrow(() -> new EntityNotFoundException("Ejemplar", request.ejemplarId()));
 
-         // Verificar disponibilidad
         if (ejemplar.getEstado() != EstadoEjemplar.DISPONIBLE) {
             throw new IllegalStateException("Ejemplar no disponible para prestamo");
         }
