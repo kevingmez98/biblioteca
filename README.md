@@ -41,6 +41,32 @@ de MySQL con permisos separados: `admin` (DDL) ejecuta las migraciones de Flyway
 
 La aplicación se conecta con `app_user` (mínimo privilegio) y nunca modifica el esquema. El esquema lo gestiona exclusivamente Flyway, que se conecta como `admin` a través de un datasource separado (`spring.flyway.*`). Hibernate corre con `ddl-auto=validate` para solo detectar desfases.
 
+## Red Docker y comunicación con el frontend
+
+Este stack crea una red con un nombre fijo (`biblioteca-network`) para que el
+frontend (repositorio separado) pueda consumir la API en el mismo entorno de
+Docker. En `docker-compose.yml`:
+
+```yaml
+networks:
+  default:
+    name: biblioteca-network
+```
+
+El contenedor del backend se llama `biblioteca-backend` (definido con
+`container_name`) y es el nombre que el frontend resuelve dentro de la red:
+
+- El frontend se une a `biblioteca-network` como red `external`.
+- Las peticiones `/api/*` del frontend se reenvían a `http://biblioteca-backend:8080`.
+
+Por lo tanto el orden de arranque es:
+
+1. Levantar este repositorio: `docker compose up -d` (crea la red).
+2. Levantar el repositorio del frontend: `docker compose up -d`.
+
+Los contenedores `biblioteca-mysql` y `biblioteca-backend` quedan en la misma
+red; el backend se conecta a la base de datos mediante el host `mysql`.
+
 ## Estructura del proyecto
 
 El backend sigue una arquitectura por capas dentro de `backend/src/main/java/com/biblioteca/`:
