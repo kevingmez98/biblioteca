@@ -39,6 +39,10 @@ public class Usuario {
     @Column(name = "fecha_nacimiento", nullable = false)
     private LocalDate fechaNacimiento;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean activo = true;
+
     @OneToMany(mappedBy = "usuario")
     @Builder.Default
     private List<Prestamo> prestamos = new ArrayList<>();
