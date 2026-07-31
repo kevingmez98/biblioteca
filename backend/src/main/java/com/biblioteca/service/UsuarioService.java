@@ -4,6 +4,7 @@ import com.biblioteca.dto.usuario.UsuarioRequest;
 import com.biblioteca.dto.usuario.UsuarioResponse;
 import com.biblioteca.exception.EntityNotFoundException;
 import com.biblioteca.model.Usuario;
+import com.biblioteca.repository.PrestamoRepository;
 import com.biblioteca.repository.UsuarioRepository;
 import java.util.List;
 import java.util.UUID;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    private final PrestamoRepository prestamoRepository;
 
     @Transactional
     public UsuarioResponse crear(UsuarioRequest request) {
@@ -75,6 +77,18 @@ public class UsuarioService {
     }
 
     
+    @Transactional
+    public void eliminar(UUID id) {
+        var usuario = usuarioRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario", id));
+
+        if (!prestamoRepository.findByUsuarioId(id).isEmpty()) {
+            throw new IllegalStateException("No se puede eliminar el usuario porque tiene prestamos asociados");
+        }
+
+        usuarioRepository.delete(usuario);
+    }
+
     // Mapeo a DTO
     private UsuarioResponse toResponse(Usuario usuario) {
         return new UsuarioResponse(
