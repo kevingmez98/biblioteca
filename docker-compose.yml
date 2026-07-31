@@ -1,3 +1,4 @@
+# Levantar mysql
 services:
   mysql:
     image: mysql:8.4
@@ -10,6 +11,39 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+    restart: unless-stopped
+
+# Levantar backend usando el dockerfile
+
+  backend:
+  # Ejecuta tambien el dockerfile
+    build: ./backend 
+    container_name: biblioteca-backend
+
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      APP_USER: ${APP_USER}
+      APP_PASSWORD: ${APP_PASSWORD}
+      SERVER_PORT: 8080
+
+    ports:
+      - "8080:8080"
+
+    depends_on:
+      mysql:
+        condition: service_healthy
 
     restart: unless-stopped
 
